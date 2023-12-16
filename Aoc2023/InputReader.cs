@@ -21,6 +21,11 @@ namespace Aoc2023
             return _reader.ReadLine();
         }
 
+        public string? ReadAll()
+        {
+            return _reader.ReadToEnd();
+        }
+
         public void Dispose()
         {
             GC.SuppressFinalize(_reader);
