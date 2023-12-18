@@ -226,8 +226,6 @@ namespace Aoc2023
 
                     do
                     {
-                        if (coords.X == 94 && coords.Y == 12)
-                            ;
                         var newCoords = new Coordinates()
                         {
                             X = coords.X,
@@ -238,7 +236,7 @@ namespace Aoc2023
                         newCoords.Inside = coords.Inside;
 
                         coordinates.Add(newCoords);
-                    } while (coords.X != coordinatesS.X || coords.Y != coordinatesS.Y) ;
+                    } while (coords.X != coordinatesS.X || coords.Y != coordinatesS.Y);
 
                     var coordsDic = coordinates.ToDictionary(x => (x.Y, x.X));
                     bool[,] map = new bool[lines.Count, lines[0].Length];
@@ -266,8 +264,6 @@ namespace Aoc2023
 
                     foreach (var coord in coordinates)
                     {
-                        if (coord.X == 94 && coord.Y == 11)
-                            ;
                         if (coord.Inside.HasFlag(InsideDirection.Up) && !map[coord.Y - 1, coord.X])
                         {
                             int y = coord.Y - 1;
@@ -366,8 +362,6 @@ namespace Aoc2023
 
             public void SwitchPos(char c)
             {
-                if (X == 94 && Y == 12)
-                    ;
                 switch (c)
                 {
                     default:

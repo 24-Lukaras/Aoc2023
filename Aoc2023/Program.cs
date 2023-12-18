@@ -2,5 +2,5 @@
 
 using Aoc2023;
 
-var result = Task16.GetPlatinum();
+var result = Task18.GetNormal();
 Console.WriteLine(result);

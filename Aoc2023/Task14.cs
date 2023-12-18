@@ -11,6 +11,8 @@ namespace Aoc2023
     internal static class Task14
     {
 
+        private static int s = 0;
+
         public static long GetNormal()
         {
             long result = 0;
@@ -159,36 +161,61 @@ namespace Aoc2023
                     blocksV.Add(currentBlocksV);
 
                     lineNumber++;
-                }
-
-
-                var orderedRocks = rocks.GroupBy(x => x.Column).OrderBy(x => x.Key).Select(x => x.OrderBy(y => y.Line).ToList()).ToArray();
-                Move(orderedRocks, blocksC, false, false, -1);
-                orderedRocks = rocks.GroupBy(x => x.Line).OrderBy(x => x.Key).Select(x => x.OrderBy(y => y.Column).ToList()).ToArray();
-                Move(orderedRocks, blocksV, true, false, -1);
-                orderedRocks = rocks.GroupBy(x => x.Column).OrderBy(x => x.Key).Select(x => x.OrderByDescending(y => y.Line).ToList()).ToArray();
-                Move(orderedRocks, blocksC, false, true, lineNumber);
-                orderedRocks = rocks.GroupBy(x => x.Line).OrderBy(x => x.Key).Select(x => x.OrderByDescending(y => y.Column).ToList()).ToArray();
-                Move(orderedRocks, blocksV, true, true, blocksC.Count);
+                }                
 
                 Visualize(rocks, blocksV);
 
+                //var tempRocks = rocks.Select(x => new Rock() { Column = x.Column, Line = x.Line }).ToList();
                 var tempRocks = rocks.ToList();
                 var upBlocks = blocksC.ToList();
                 var leftBlocks = blocksV.ToList();
                 var downBlocks = blocksC.ToList();
                 var rightBlocks = blocksV.ToList();
+                int changes = -1;
 
-                while (tempRocks.Count > 0)
+                List<Rock>[] orderedRocks;
+
+                for (int i = 0; i < 100; i++)
                 {
+                    orderedRocks = tempRocks.GroupBy(x => x.Column).OrderBy(x => x.Key).Select(x => x.OrderBy(y => y.Line).ToList()).ToArray();
+                    Move(orderedRocks, upBlocks, false, false, -1);
+                    orderedRocks = tempRocks.GroupBy(x => x.Line).OrderBy(x => x.Key).Select(x => x.OrderBy(y => y.Column).ToList()).ToArray();
+                    Move(orderedRocks, leftBlocks, true, false, -1);
+                    orderedRocks = tempRocks.GroupBy(x => x.Column).OrderBy(x => x.Key).Select(x => x.OrderByDescending(y => y.Line).ToList()).ToArray();
+                    Move(orderedRocks, downBlocks, false, true, lineNumber);
+                    orderedRocks = tempRocks.GroupBy(x => x.Line).OrderBy(x => x.Key).Select(x => x.OrderByDescending(y => y.Column).ToList()).ToArray();
+                    Move(orderedRocks, rightBlocks, true, true, blocksC.Count);
+                }
+
+                
+                while (tempRocks.Count > 0 && changes != 0)
+                {
+                    s++;
+
+                    if (s == 25)
+                    {
+                        ;
+                    }
+
+                    orderedRocks = tempRocks.GroupBy(x => x.Column).OrderBy(x => x.Key).Select(x => x.OrderBy(y => y.Line).ToList()).ToArray();
+                    Move(orderedRocks, upBlocks, false, false, -1);
+                    orderedRocks = tempRocks.GroupBy(x => x.Line).OrderBy(x => x.Key).Select(x => x.OrderBy(y => y.Column).ToList()).ToArray();
+                    Move(orderedRocks, leftBlocks, true, false, -1);
+                    orderedRocks = tempRocks.GroupBy(x => x.Column).OrderBy(x => x.Key).Select(x => x.OrderByDescending(y => y.Line).ToList()).ToArray();
+                    Move(orderedRocks, downBlocks, false, true, lineNumber);
+                    orderedRocks = tempRocks.GroupBy(x => x.Line).OrderBy(x => x.Key).Select(x => x.OrderByDescending(y => y.Column).ToList()).ToArray();
+                    Move(orderedRocks, rightBlocks, true, true, blocksC.Count);
+
+                    changes = 0;
                     var newUpBlocks = new List<Block>();
                     var newLeftBlocks = new List<Block>();
                     var newDownBlocks = new List<Block>();
                     var newRightBlocks = new List<Block>();
                     
 
-                    foreach (var rock in tempRocks)
+                    for (int i = tempRocks.Count - 1; i >= 0; i--)
                     {
+                        var rock = tempRocks[i];
                         var tempRock = new Rock()
                         {
                             Line = rock.Line,
@@ -206,6 +233,7 @@ namespace Aoc2023
 
                         if (tempRock.Line == rock.Line && tempRock.Column == rock.Column)
                         {
+                            changes++;
                             newUpBlocks.Add(new Block()
                             {
                                 Line = up.Item1,
@@ -232,28 +260,55 @@ namespace Aoc2023
 
                     foreach (var tempUp in newUpBlocks)
                     {
-                        upBlocks[tempUp.Column].Add(tempUp);
+                        for (int i = 0; i <= upBlocks[tempUp.Column].Count; i++)
+                        {
+                            if (i == upBlocks[tempUp.Column].Count - 1 || upBlocks[tempUp.Column][i + 1].Column > tempUp.Column)
+                            {
+                                upBlocks[tempUp.Column].Insert(i, tempUp);
+                                break;
+                            }
+                        }
                     }
                     foreach (var tempLeft in newLeftBlocks)
                     {
                         for (int i = 0; i <= leftBlocks[tempLeft.Line].Count; i++)
                         {
-                            if (i == leftBlocks[tempLeft.Line].Count || leftBlocks[tempLeft.Line][i + 1].Column > tempLeft.Column)
+                            if (i == leftBlocks[tempLeft.Line].Count - 1 || leftBlocks[tempLeft.Line][i + 1].Column > tempLeft.Column)
                             {
                                 leftBlocks[tempLeft.Line].Insert(i, tempLeft);
+                                break;
                             }
                         }
                     }
                     foreach (var tempDown in newDownBlocks)
                     {
-                        downBlocks[tempDown.Column].Add(tempDown);
+                        for (int i = 0; i <= downBlocks[tempDown.Column].Count; i++)
+                        {
+                            if (i == downBlocks[tempDown.Column].Count - 1 || downBlocks[tempDown.Column][i + 1].Column > tempDown.Column)
+                            {
+                                downBlocks[tempDown.Column].Insert(i, tempDown);
+                                break;
+                            }
+                        }
                     }
-                    foreach (var tepmRight in newRightBlocks)
+                    foreach (var tempRight in newRightBlocks)
                     {
-                        rightBlocks[tepmRight.Column].Add(tepmRight);
+                        for (int i = 0; i <= rightBlocks[tempRight.Line].Count; i++)
+                        {
+                            if (i == rightBlocks[tempRight.Line].Count - 1 || rightBlocks[tempRight.Line][i + 1].Column > tempRight.Column)
+                            {
+                                rightBlocks[tempRight.Line].Insert(i, tempRight);
+                                break;
+                            }
+                        }
                     }
                 }
 
+                foreach (var rock in rocks.OrderBy(x => x.Line))
+                {
+                    int val = lineNumber - rock.Line;
+                    result += val;
+                }
 
                 /*
                 Dictionary<(int, int)[], int> map = new Dictionary<(int, int)[], int>();
@@ -380,7 +435,7 @@ namespace Aoc2023
                             rock.Column = currentBlock.Column;
                             rock.Line = currentBlock.Line;
                         }
-                    }                    
+                    }                      
                 }
 
             }
